@@ -2,10 +2,7 @@ import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Mapa {
     private List<String> mapa;
@@ -16,6 +13,8 @@ public class Mapa {
     private boolean[][] areaRevelada; // Rastreia quais partes do mapa foram reveladas
     private final Color brickColor = new Color(153, 76, 0); // Cor marrom para tijolos
     private final Color vegetationColor = new Color(34, 139, 34); // Cor verde para vegetação
+    private final Color yeColor = new Color(73, 73, 73); // Cor cinza para kanye west
+    private final Color waterColor = new Color(20, 191, 213); // Cor azul para agua
     private final int RAIO_VISAO = 5; // Raio de visão do personagem
 
 
@@ -122,9 +121,48 @@ public class Mapa {
     }
 
     public String interage() {
-        //TODO: Implementar
-        return "Interage";
+        Map<String, ElementoMapa> elementosNaDistancia = new HashMap<>();
+
+        for (int i = Math.max(0, y / TAMANHO_CELULA - 2); i < Math.min(mapa.size(), y / TAMANHO_CELULA + 2); i++) {
+            for (int j = Math.max(0, x / TAMANHO_CELULA - 2); j < Math.min(mapa.get(i).length(), x / TAMANHO_CELULA + 2); j++) {
+                char id = mapa.get(i).charAt(j);
+                ElementoMapa elemento = elementos.get(id);
+
+                if (elemento != null && elemento.podeInteragir() && ((Math.abs(i * TAMANHO_CELULA - y) <= 2 * TAMANHO_CELULA) && (Math.abs(j * TAMANHO_CELULA - x) <= 2 * TAMANHO_CELULA))) {
+                    String chave = getDirecaoRelativa(i, j);
+                    if (!elementosNaDistancia.containsKey(chave)) {
+                        elementosNaDistancia.put(chave, elemento);
+                    }
+                }
+            }
+        }
+
+        if (!elementosNaDistancia.isEmpty()) {
+            StringBuilder resultado = new StringBuilder();
+            for (String direcao : Arrays.asList("cima", "direita", "baixo", "esquerda")) {
+                ElementoMapa elemento = elementosNaDistancia.get(direcao);
+                if (elemento != null) {
+                    resultado.append(elemento.interage()).append("\n");
+                }
+            }
+            return resultado.toString();
+        }
+
+        return "Nenhuma interação próxima.";
     }
+
+    private String getDirecaoRelativa(int i, int j) {
+        int distanciaY = i * TAMANHO_CELULA - y;
+        int distanciaX = j * TAMANHO_CELULA - x;
+
+        if (Math.abs(distanciaY) <= TAMANHO_CELULA) {
+            return (distanciaY < 0) ? "cima" : "baixo";
+        } else {
+            return (distanciaX < 0) ? "esquerda" : "direita";
+        }
+    }
+
+
 
     public String ataca() {
         //TODO: Implementar
@@ -166,5 +204,9 @@ public class Mapa {
         elementos.put('#', new Parede('▣', brickColor));
         // Vegetação
         elementos.put('V', new Vegetacao('♣', vegetationColor));
+        // Ye
+        elementos.put('Y', new Ye('¥', yeColor));
+        // Agua
+        elementos.put('A', new Agua('▨', waterColor));
     }
 }
