@@ -120,45 +120,109 @@ public class Mapa {
         return false;
     }
 
-    public String interage() {
-        Map<String, ElementoMapa> elementosNaDistancia = new HashMap<>();
 
-        for (int i = Math.max(0, y / TAMANHO_CELULA - 2); i < Math.min(mapa.size(), y / TAMANHO_CELULA + 2); i++) {
-            for (int j = Math.max(0, x / TAMANHO_CELULA - 2); j < Math.min(mapa.get(i).length(), x / TAMANHO_CELULA + 2); j++) {
+    public String interage() {
+        ElementoMapa elementoMaisProximo = null;
+        double menorDistancia = Double.MAX_VALUE;
+
+        // Verifica elementos nas células adjacentes
+        for (int i = Math.max(0, y / TAMANHO_CELULA - 2); i <= Math.min(mapa.size() - 1, y / TAMANHO_CELULA + 2); i++) {
+            for (int j = Math.max(0, x / TAMANHO_CELULA - 2); j <= Math.min(mapa.get(i).length() - 1, x / TAMANHO_CELULA + 2); j++) {
+                // Ignora a posição do próprio personagem
+
+
                 char id = mapa.get(i).charAt(j);
                 ElementoMapa elemento = elementos.get(id);
 
-                if (elemento != null && elemento.podeInteragir() && ((Math.abs(i * TAMANHO_CELULA - y) <= 2 * TAMANHO_CELULA) && (Math.abs(j * TAMANHO_CELULA - x) <= 2 * TAMANHO_CELULA))) {
-                    String chave = getDirecaoRelativa(i, j);
-                    if (!elementosNaDistancia.containsKey(chave)) {
-                        elementosNaDistancia.put(chave, elemento);
+                // Verifica se há um elemento no local e se ele pode interagir
+                if (elemento != null && elemento.podeInteragir()) {
+                    // Calcula a distância usando o teorema de Pitágoras
+                    double distancia = Math.sqrt(Math.pow(i - y / TAMANHO_CELULA, 2) + Math.pow(j - x / TAMANHO_CELULA, 2));
+
+                    // Verifica se a distância é menor do que a menor distância registrada até agora
+                    if (distancia < menorDistancia) {
+                        menorDistancia = distancia;
+                        elementoMaisProximo = elemento;
+                    } else if (distancia == menorDistancia) {
+                        // Se a distância é a mesma, fazemos o desempate
+                        Direcao direcaoAtual = calcularDirecao(y / TAMANHO_CELULA, x / TAMANHO_CELULA, i, j);
+                        Direcao direcaoAnterior = calcularDirecao(y / TAMANHO_CELULA, x / TAMANHO_CELULA,
+                                elementoMaisProximo != null ? i : 0,
+                                elementoMaisProximo != null ? j : 0);
+
+                        // Se a direção atual tem uma prioridade maior, atualiza o elemento mais próximo
+                        if (calcularPrioridadeVisual(direcaoAtual) > calcularPrioridadeVisual(direcaoAnterior)) {
+                            elementoMaisProximo = elemento;
+                        }
+
+
                     }
                 }
             }
         }
 
-        if (!elementosNaDistancia.isEmpty()) {
-            StringBuilder resultado = new StringBuilder();
-            for (String direcao : Arrays.asList("cima", "direita", "baixo", "esquerda")) {
-                ElementoMapa elemento = elementosNaDistancia.get(direcao);
-                if (elemento != null) {
-                    resultado.append(elemento.interage()).append("\n");
-                }
-            }
-            return resultado.toString();
+        // Se encontrou um elemento para interagir
+        if (elementoMaisProximo != null) {
+            System.out.println("Interagindo com elemento: " + elementoMaisProximo.getClass().getSimpleName());
+            return elementoMaisProximo.interage();
+        } else {
+            // Se não houver nenhum elemento para interagir nas células adjacentes
+            System.out.println("Nada para interagir");
+            return "Nada para interagir";
         }
-
-        return "Nenhuma interação próxima.";
     }
 
-    private String getDirecaoRelativa(int i, int j) {
-        int distanciaY = i * TAMANHO_CELULA - y;
-        int distanciaX = j * TAMANHO_CELULA - x;
 
-        if (Math.abs(distanciaY) <= TAMANHO_CELULA) {
-            return (distanciaY < 0) ? "cima" : "baixo";
+
+    private Direcao calcularDirecao(int personagemY, int personagemX, int elementoY, int elementoX) {
+        int diferencaY = elementoY - personagemY;
+        int diferencaX = elementoX - personagemX;
+
+        if (diferencaY < 0) {
+            if (diferencaX < 0) {
+                return Direcao.SUPERIOR_ESQUERDA;
+            } else if (diferencaX > 0) {
+                return Direcao.SUPERIOR_DIREITA;
+            } else {
+                return Direcao.CIMA;
+            }
+        } else if (diferencaY > 0) {
+            if (diferencaX < 0) {
+                return Direcao.INFERIOR_ESQUERDA;
+            } else if (diferencaX > 0) {
+                return Direcao.INFERIOR_DIREITA;
+            } else {
+                return Direcao.BAIXO;
+            }
         } else {
-            return (distanciaX < 0) ? "esquerda" : "direita";
+            if (diferencaX < 0) {
+                return Direcao.ESQUERDA;
+            } else {
+                return Direcao.DIREITA;
+            }
+        }
+    }
+
+    private int calcularPrioridadeVisual(Direcao direcao) {
+        switch (direcao) {
+            case DIREITA:
+                return 0;
+            case INFERIOR_DIREITA:
+                return 1;
+            case BAIXO:
+                return 2;
+            case INFERIOR_ESQUERDA:
+                return 3;
+            case ESQUERDA:
+                return 4;
+            case SUPERIOR_ESQUERDA:
+                return 5;
+            case CIMA:
+                return 6;
+            case SUPERIOR_DIREITA:
+                return 7;
+            default:
+                return 8; // Prioridade padrão para casos não esperados
         }
     }
 

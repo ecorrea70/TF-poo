@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.Random;
 
 public class Ye  implements ElementoMapa{
     private Color cor;
@@ -31,6 +32,10 @@ public class Ye  implements ElementoMapa{
 
     @Override
     public String interage() {
-        return "boooouund to fall in love";
+        String[] frases={"Yeezy season approaching", "you'll never find nobody better than me", "some day, some day", "boooouund to fall in love"};
+        Random random = new Random();
+
+        int aleatorio = random.nextInt(frases.length);
+        return frases[aleatorio];
     }
 }
