@@ -4,8 +4,4 @@ public enum Direcao {
     BAIXO,
     ESQUERDA,
     DIREITA,
-    SUPERIOR_DIREITA,
-    INFERIOR_DIREITA,
-    INFERIOR_ESQUERDA,
-    SUPERIOR_ESQUERDA
 }

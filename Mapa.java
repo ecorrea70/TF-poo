@@ -125,50 +125,36 @@ public class Mapa {
         ElementoMapa elementoMaisProximo = null;
         double menorDistancia = Double.MAX_VALUE;
 
-        // Verifica elementos nas células adjacentes
+        //percorre a matriz
         for (int i = Math.max(0, y / TAMANHO_CELULA - 2); i <= Math.min(mapa.size() - 1, y / TAMANHO_CELULA + 2); i++) {
             for (int j = Math.max(0, x / TAMANHO_CELULA - 2); j <= Math.min(mapa.get(i).length() - 1, x / TAMANHO_CELULA + 2); j++) {
-                // Ignora a posição do próprio personagem
-
-
                 char id = mapa.get(i).charAt(j);
                 ElementoMapa elemento = elementos.get(id);
 
-                // Verifica se há um elemento no local e se ele pode interagir
                 if (elemento != null && elemento.podeInteragir()) {
-                    // Calcula a distância usando o teorema de Pitágoras
-                    double distancia = Math.sqrt(Math.pow(i - y / TAMANHO_CELULA, 2) + Math.pow(j - x / TAMANHO_CELULA, 2));
+                    double distancia = Math.pow(i - y / TAMANHO_CELULA, 2) + Math.pow(j - x / TAMANHO_CELULA, 2);
 
-                    // Verifica se a distância é menor do que a menor distância registrada até agora
                     if (distancia < menorDistancia) {
                         menorDistancia = distancia;
                         elementoMaisProximo = elemento;
                     } else if (distancia == menorDistancia) {
-                        // Se a distância é a mesma, fazemos o desempate
-                        Direcao direcaoAtual = calcularDirecao(y / TAMANHO_CELULA, x / TAMANHO_CELULA, i, j);
-                        Direcao direcaoAnterior = calcularDirecao(y / TAMANHO_CELULA, x / TAMANHO_CELULA,
+                        Direcao direcaoAtual = calcularDirecao(y, x, i, j);
+                        Direcao direcaoAnterior = calcularDirecao(y , x ,
                                 elementoMaisProximo != null ? i : 0,
                                 elementoMaisProximo != null ? j : 0);
 
-                        // Se a direção atual tem uma prioridade maior, atualiza o elemento mais próximo
-                        if (calcularPrioridadeVisual(direcaoAtual) > calcularPrioridadeVisual(direcaoAnterior)) {
+                        if (prioridade(direcaoAtual) > prioridade(direcaoAnterior)) {
                             elementoMaisProximo = elemento;
                         }
-
-
                     }
                 }
             }
         }
 
-        // Se encontrou um elemento para interagir
         if (elementoMaisProximo != null) {
-            System.out.println("Interagindo com elemento: " + elementoMaisProximo.getClass().getSimpleName());
             return elementoMaisProximo.interage();
         } else {
-            // Se não houver nenhum elemento para interagir nas células adjacentes
-            System.out.println("Nada para interagir");
-            return "Nada para interagir";
+            return "Nenhum elemento próximo encontrado";
         }
     }
 
@@ -178,53 +164,38 @@ public class Mapa {
         int diferencaY = elementoY - personagemY;
         int diferencaX = elementoX - personagemX;
 
-        if (diferencaY < 0) {
-            if (diferencaX < 0) {
-                return Direcao.SUPERIOR_ESQUERDA;
-            } else if (diferencaX > 0) {
-                return Direcao.SUPERIOR_DIREITA;
+        if (Math.abs(diferencaY) > Math.abs(diferencaX)) {
+            if (diferencaY > 0) {
+                return Direcao.BAIXO;
             } else {
                 return Direcao.CIMA;
             }
-        } else if (diferencaY > 0) {
-            if (diferencaX < 0) {
-                return Direcao.INFERIOR_ESQUERDA;
-            } else if (diferencaX > 0) {
-                return Direcao.INFERIOR_DIREITA;
-            } else {
-                return Direcao.BAIXO;
-            }
         } else {
-            if (diferencaX < 0) {
-                return Direcao.ESQUERDA;
-            } else {
+            if (diferencaX > 0) {
                 return Direcao.DIREITA;
+            } else {
+                return Direcao.ESQUERDA;
             }
         }
     }
 
-    private int calcularPrioridadeVisual(Direcao direcao) {
+
+    private int prioridade(Direcao direcao) {
         switch (direcao) {
-            case DIREITA:
-                return 0;
-            case INFERIOR_DIREITA:
-                return 1;
             case BAIXO:
-                return 2;
-            case INFERIOR_ESQUERDA:
-                return 3;
+                return 0;
             case ESQUERDA:
-                return 4;
-            case SUPERIOR_ESQUERDA:
-                return 5;
+                return 1;
             case CIMA:
-                return 6;
-            case SUPERIOR_DIREITA:
-                return 7;
+                return 2;
+            case DIREITA:
+                return 3;
             default:
-                return 8; // Prioridade padrão para casos não esperados
+                return 4; // Prioridade padrão para casos não esperados
         }
     }
+
+
 
 
 
