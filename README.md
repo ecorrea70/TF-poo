@@ -1,8 +1,9 @@
 # TF-POO
 
 Trabalho Final da disciplina de Programação Orientada a Objetos do curso de Engenharia de Software da PUCRS.
-Código-fonte inicial implementado pelo Prof. Marcelo Veiga Neves.
+Código-fonte inicial implementado pelo Prof. Marcelo Veiga Neves. 
 
+Para inicializar o programa, basta executar a classe Jogo.java
 
 ## Objetivo
 
