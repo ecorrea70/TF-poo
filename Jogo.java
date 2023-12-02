@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Jogo extends JFrame implements KeyListener {
     private JLabel statusBar;
@@ -9,12 +11,22 @@ public class Jogo extends JFrame implements KeyListener {
     private final Color fogColor = new Color(192, 192, 192, 150); // Cor cinza claro com transparência para nevoa
     private final Color characterColor = Color.BLACK; // Cor preta para o personagem
 
+    //TIMER
+    private Timer timer;
+    private int tempoLimite = 120000; //120seg
+
+
+
     public Jogo(String arquivoMapa) {
         setTitle("Jogo de Aventura");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+
+        //TIMER
+        timer = new Timer(tempoLimite, e -> encerrarJogo());
+        timer.start();
 
         // Cria o mapa do jogo
         mapa = new Mapa(arquivoMapa);
@@ -114,7 +126,16 @@ public class Jogo extends JFrame implements KeyListener {
         if (mensagem != null) {
             JOptionPane.showMessageDialog(this, mensagem);
         }
+
+        if (mapa.encerrarJogo) {
+                encerrarJogo();
+        }
     }
+
+
+
+
+
 
     public void ataca() {
         if (mapa == null)
@@ -195,5 +216,10 @@ public class Jogo extends JFrame implements KeyListener {
         SwingUtilities.invokeLater(() -> {
             new Jogo("mapa.txt").setVisible(true);
         });
+    }
+
+    private void encerrarJogo() {
+        JOptionPane.showMessageDialog(this, "Fim de jogo...");
+        System.exit(0);
     }
 }

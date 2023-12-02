@@ -15,7 +15,9 @@ public class Mapa {
     private final Color vegetationColor = new Color(34, 139, 34); // Cor verde para vegetação
     private final Color yeColor = new Color(73, 73, 73); // Cor cinza para kanye west
     private final Color waterColor = new Color(20, 191, 213); // Cor azul para agua
+    private final Color finalColor = new Color(34, 139, 34); // Cor azul para elemento Final
     private final int RAIO_VISAO = 5; // Raio de visão do personagem
+    public boolean encerrarJogo = false;
 
 
     public Mapa(String arquivoMapa) {
@@ -125,7 +127,7 @@ public class Mapa {
         ElementoMapa elementoMaisProximo = null;
         double menorDistancia = Double.MAX_VALUE;
 
-        //percorre a matriz
+        // percorre a matriz
         for (int i = Math.max(0, y / TAMANHO_CELULA - 2); i <= Math.min(mapa.size() - 1, y / TAMANHO_CELULA + 2); i++) {
             for (int j = Math.max(0, x / TAMANHO_CELULA - 2); j <= Math.min(mapa.get(i).length() - 1, x / TAMANHO_CELULA + 2); j++) {
                 char id = mapa.get(i).charAt(j);
@@ -139,7 +141,7 @@ public class Mapa {
                         elementoMaisProximo = elemento;
                     } else if (distancia == menorDistancia) {
                         Direcao direcaoAtual = calcularDirecao(y, x, i, j);
-                        Direcao direcaoAnterior = calcularDirecao(y , x ,
+                        Direcao direcaoAnterior = calcularDirecao(y, x,
                                 elementoMaisProximo != null ? i : 0,
                                 elementoMaisProximo != null ? j : 0);
 
@@ -152,11 +154,19 @@ public class Mapa {
         }
 
         if (elementoMaisProximo != null) {
-            return elementoMaisProximo.interage();
+            if (elementoMaisProximo instanceof Final) {
+                encerrarJogo = true;
+                return elementoMaisProximo.interage();
+            } else {
+                return elementoMaisProximo.interage();
+            }
         } else {
             return "Nenhum elemento próximo encontrado";
         }
     }
+
+
+
 
 
 
@@ -242,6 +252,8 @@ public class Mapa {
         // Ye
         elementos.put('Y', new Ye('¥', yeColor));
         // Agua
-        elementos.put('A', new Agua('▨', waterColor));
+        elementos.put('A', new Agua('≈', waterColor));
+        // Coringa
+        elementos.put('F', new Final('Ϡ', finalColor));
     }
 }
